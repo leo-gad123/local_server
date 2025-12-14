@@ -69,7 +69,8 @@ html_template = """
     <div id="status">
         Current State: <b>{{state}}</b>
     </div>
-
+<br><br><br>
+<h1>&copycopy Leogad Server</h1>
 </body>
 </html>
 """
