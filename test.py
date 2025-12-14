@@ -1,12 +1,20 @@
-# app.py
 import os
 from flask import Flask, render_template_string, request
+from datetime import datetime
 
 app = Flask(__name__)
 
-lamp_state = "OFF"
+# Data storage
+current_data = {
+    "lamp": "off",
+    "brightness": 0,
+    "last_update": None
+}
 
-html_template =  '''
+data_history = []
+MAX_HISTORY = 20  # Keep last 20 readings
+
+html_template = '''
     <!DOCTYPE html>
     <html>
     <head>
@@ -247,11 +255,18 @@ html_template =  '''
                 color: white;
                 text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
             }
+
+            .no-data {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+                font-style: italic;
+            }
         </style>
         <script>
             setTimeout(function(){
                 location.reload();
-            }, 2000);
+            }, 5000);
         </script>
     </head>
     <body>
@@ -285,6 +300,7 @@ html_template =  '''
             
             <div class="card">
                 <h2><i class="fas fa-history"></i> Recent History</h2>
+                {% if data_history %}
                 <table>
                     <thead>
                         <tr>
@@ -308,29 +324,117 @@ html_template =  '''
                         {% endfor %}
                     </tbody>
                 </table>
+                {% else %}
+                <div class="no-data">
+                    <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 10px; display: block; color: #ccc;"></i>
+                    No data received yet. Waiting for ESP8266 to send data...
+                </div>
+                {% endif %}
             </div>
         </div>
     </body>
     </html>
-    '''
+'''
 
 @app.route("/")
 def index():
-    return render_template_string(html_template, state=lamp_state)
+    return render_template_string(
+        html_template, 
+        current_data=current_data,
+        data_history=data_history
+    )
 
-@app.route("/set")
-def set_lamp():
-    global lamp_state
-    state = request.args.get("state")
-    if state in ["ON", "OFF"]:
-        lamp_state = state
-    return render_template_string(html_template, state=lamp_state)
+@app.route("/update")
+def update_data():
+    """
+    ESP8266 sends data here
+    Example: /update?lamp=on&brightness=75
+    """
+    global current_data, data_history
+    
+    lamp = request.args.get("lamp", "").lower()
+    brightness = request.args.get("brightness", "0")
+    
+    # Validate lamp state
+    if lamp not in ["on", "off"]:
+        return "ERROR: Invalid lamp state. Use 'on' or 'off'", 400
+    
+    # Validate brightness
+    try:
+        brightness_val = int(brightness)
+        if not 0 <= brightness_val <= 100:
+            return "ERROR: Brightness must be between 0 and 100", 400
+    except ValueError:
+        return "ERROR: Invalid brightness value", 400
+    
+    # Update current data
+    current_data["lamp"] = lamp
+    current_data["brightness"] = brightness_val
+    current_data["last_update"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Add to history
+    data_history.append({
+        "timestamp": current_data["last_update"],
+        "data": {
+            "lamp": lamp,
+            "brightness": brightness_val
+        }
+    })
+    
+    # Keep only last MAX_HISTORY items
+    if len(data_history) > MAX_HISTORY:
+        data_history.pop(0)
+    
+    return "OK"
 
 @app.route("/status")
 def get_status():
-    # NodeMCU can fetch this to get lamp state
-    return lamp_state
+    """
+    ESP8266 can fetch current status
+    Returns: lamp_state,brightness (e.g., "on,75")
+    """
+    return f"{current_data['lamp']},{current_data['brightness']}"
+
+@app.route("/set")
+def set_lamp():
+    """
+    Manual control endpoint (optional)
+    Example: /set?lamp=on&brightness=50
+    """
+    global current_data, data_history
+    
+    lamp = request.args.get("lamp", "").lower()
+    brightness = request.args.get("brightness")
+    
+    if lamp in ["on", "off"]:
+        current_data["lamp"] = lamp
+        current_data["last_update"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if brightness:
+            try:
+                brightness_val = int(brightness)
+                if 0 <= brightness_val <= 100:
+                    current_data["brightness"] = brightness_val
+            except ValueError:
+                pass
+        
+        # Add to history
+        data_history.append({
+            "timestamp": current_data["last_update"],
+            "data": {
+                "lamp": current_data["lamp"],
+                "brightness": current_data["brightness"]
+            }
+        })
+        
+        if len(data_history) > MAX_HISTORY:
+            data_history.pop(0)
+    
+    return render_template_string(
+        html_template,
+        current_data=current_data,
+        data_history=data_history
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
