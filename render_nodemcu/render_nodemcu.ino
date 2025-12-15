@@ -27,8 +27,7 @@ void setup() {
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClientSecure client;
-    client.setInsecure(); // Skip certificate validation
-    client.setTimeout(15000); // 15 second timeout
+    client.setTimeout(15000); 
     
     HTTPClient http;
     
@@ -37,7 +36,7 @@ void loop() {
     if (http.begin(client, serverURL)) {
       Serial.println("HTTP begin successful");
       
-      http.setTimeout(15000); // 15 second timeout
+      http.setTimeout(15000); 
       int httpCode = http.GET();
       
       Serial.print("HTTP Code: ");
@@ -67,5 +66,5 @@ void loop() {
     Serial.println("WiFi Disconnected");
   }
 
-  delay(5000); // Wait 5 seconds between requests
+  delay(5000); 
 }
