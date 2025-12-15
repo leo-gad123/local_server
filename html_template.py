@@ -7,6 +7,11 @@ html_template = """
     <title>Lamp Control</title>
  <link rel="icon" href="{{ url_for('static', filename='lamp.ico') }}">
 
+ <img src="{{ url_for('static', filename='profile.png') }}" 
+     alt="Owner Image"
+     class="profile-img">
+
+
 
     <style>
         body {
@@ -60,6 +65,17 @@ html_template = """
             50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
             100% { box-shadow: 0 0 0 rgba(255,255,255,0.2); }
         }
+
+        .profile-img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    animation: fadeIn 1.5s ease-in-out;
+}
+
     </style>
 </head>
 <body>
