@@ -5,7 +5,7 @@ html_template = """
 <html>
 <head>
     <title>Lamp Control</title>
-    <link rel="icon" href="/lamp.ico" type="image/x-icon">
+    <link rel="icon" href="lamp.ico" type="image/icon">
 
     <style>
         body {
