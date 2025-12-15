@@ -38,5 +38,50 @@ void setup() {
 }
 
 void loop() {
+<<<<<<< HEAD
   server.handleClient();
+=======
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFiClientSecure client;
+    client.setTimeout(15000); 
+    
+    HTTPClient http;
+    
+    Serial.println("Attempting to connect to: " + String(serverURL));
+    
+    if (http.begin(client, serverURL)) {
+      Serial.println("HTTP begin successful");
+      
+      http.setTimeout(15000); 
+      int httpCode = http.GET();
+      
+      Serial.print("HTTP Code: ");
+      Serial.println(httpCode);
+      
+      if (httpCode > 0) { 
+        if (httpCode == HTTP_CODE_OK) {
+          String payload = http.getString();
+          Serial.println("Lamp State: " + payload);
+          if (payload=="ON"){
+            digitalWrite(LED_BUILTIN,0);
+          }
+          else
+          digitalWrite(LED_BUILTIN,1);
+        } else {
+          Serial.println("HTTP Code: " + String(httpCode));
+        }
+      } else {
+        Serial.println("Error in HTTP request");
+        Serial.println("Error: " + http.errorToString(httpCode));
+      }
+      http.end();
+    } else {
+      Serial.println("HTTP begin failed");
+    }
+  } else {
+    Serial.println("WiFi Disconnected");
+  }
+
+  delay(5000); 
+>>>>>>> a77b0581eca16979c92912bfa7812fe8df71c1c6
 }
