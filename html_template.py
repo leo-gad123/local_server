@@ -76,6 +76,28 @@ html_template = """
     animation: fadeIn 1.5s ease-in-out;
 }
 
+
+
+.dht-card {
+    margin: 40px auto;
+    padding: 20px;
+    width: 300px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    animation: fadeIn 2s ease-in-out;
+}
+
+.dht-card h2 {
+    font-size: 26px;
+    margin-bottom: 15px;
+}
+
+.dht-card p {
+    font-size: 22px;
+    margin: 10px 0;
+}
+
     </style>
 </head>
 <body>
@@ -88,6 +110,13 @@ html_template = """
     <div id="status">
         Current State: <b>{{state}}</b>
     </div>
+
+    <div class="dht-card">
+    <h2>🌡 Environment</h2>
+    <p>Temperature: <span id="temp">{{ temperature }}</span> °C</p>
+    <p>Humidity: <span id="hum">{{ humidity }}</span> %</p>
+</div>
+
 <br><br><br>
 <h1>&copy Leogad Flask Server</h1>
 </body>
