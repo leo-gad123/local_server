@@ -5,6 +5,8 @@ html_template = """
 <html>
 <head>
     <title>Lamp Control</title>
+    <link rel="icon" href="/lamp.ico" type="image/x-icon">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,7 +72,7 @@ html_template = """
         Current State: <b>{{state}}</b>
     </div>
 <br><br><br>
-<h1>&copy Leogad Server</h1>
+<h1>&copy Leogad Flask Server</h1>
 </body>
 </html>
 """
