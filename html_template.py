@@ -5,7 +5,8 @@ html_template = """
 <html>
 <head>
     <title>Lamp Control</title>
-    <link rel="icon" href="lamp.ico" type="image/icon">
+ <link rel="icon" href="{{ url_for('static', filename='lamp.ico') }}">
+
 
     <style>
         body {
